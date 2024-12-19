@@ -152,7 +152,7 @@ def run_scenario(df):
 
 # Fungsi Utama
 def main():
-    st.title("Analisis Buku dengan Streamlit")
+    st.title("Final Project - Data Mining Kelompok 8")
     st.sidebar.header("Navigasi")
     menu = st.sidebar.radio("Pilih Langkah:", ["Scrape Data", "Visualisasi", "Scenario", "Kesimpulan"])
 
@@ -160,7 +160,7 @@ def main():
         st.header("Scraping Data")
         df = scrape_books()
         st.dataframe(df.head())
-        st.write("Data berhasil di-scrape!")
+        st.write("Contoh Data yang berhasil di-scrape")
 
     elif menu == "Visualisasi":
         st.header("Visualisasi Data")
