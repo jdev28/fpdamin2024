@@ -159,12 +159,14 @@ def run_scenario(df):
         model_lr.fit(X_train, y_train)
         y_pred_lr = model_lr.predict(X_test)
         accuracy_lr = accuracy_score(y_test, y_pred_lr)
+        cm_lr = confusion_matrix(y_test, y_pred_lr)
     
         # Train Random Forest Classifier
         model_rf = RandomForestClassifier(random_state=42)
         model_rf.fit(X_train, y_train)
         y_pred_rf = model_rf.predict(X_test)
         accuracy_rf = accuracy_score(y_test, y_pred_rf)
+        cm_rf = confusion_matrix(y_test, y_pred_rf)
     
         # Evaluation Metrics
         st.write("**Hasil:**")
@@ -180,13 +182,24 @@ def run_scenario(df):
             ax.text(i, v + 0.02, f'{v:.2f}', ha='center')
         st.pyplot(fig)
     
-        # Confusion Matrix for Random Forest (Example)
-        st.write("**Confusion Matrix (Random Forest Classifier):**")
-        cm_rf = confusion_matrix(y_test, y_pred_rf)
-        fig, ax = plt.subplots(figsize=(8, 6))
-        sns.heatmap(cm_rf, annot=True, fmt='d', cmap='Blues', ax=ax)
-        ax.set_title("Confusion Matrix - Random Forest")
+        # Visualization: Confusion Matrix Comparison
+        st.write("**Perbandingan Confusion Matrix:**")
+        fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+    
+        # Logistic Regression Confusion Matrix
+        sns.heatmap(cm_lr, annot=True, fmt='d', cmap='Blues', ax=axes[0])
+        axes[0].set_title("Logistic Regression")
+        axes[0].set_xlabel("Predicted Label")
+        axes[0].set_ylabel("True Label")
+    
+        # Random Forest Confusion Matrix
+        sns.heatmap(cm_rf, annot=True, fmt='d', cmap='Greens', ax=axes[1])
+        axes[1].set_title("Random Forest Classifier")
+        axes[1].set_xlabel("Predicted Label")
+        axes[1].set_ylabel("True Label")
+    
         st.pyplot(fig)
+
 
     elif scenario_option == "Skenario 3: Segmentasi Buku Berdasarkan Harga dan Rating":
         st.subheader("Skenario 3: Segmentasi Buku Berdasarkan Harga dan Rating")
