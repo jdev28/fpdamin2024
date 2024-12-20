@@ -109,34 +109,69 @@ def run_scenario(df):
         st.write("Skenario ini bertujuan untuk memprediksi harga buku berdasarkan rating yang diberikan.")
         st.write("Model yang digunakan:")
         st.write("1. **Linear Regression**: Untuk hubungan linear antara rating dan harga.")
-        st.write("2. **Decision Tree Regression**: Untuk pola non-linear.")
-
-        # Model Implementation
+        st.write("2. **Decision Tree Regression**: Untuk menangkap pola non-linear.")
+    
+        # Splitting the data
         X = df[['Rating']]
         y = df['Price']
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        model_option = st.selectbox("Pilih Model:", ["Linear Regression", "Decision Tree Regression"])
-
-        if model_option == "Linear Regression":
-            model = LinearRegression()
-        else:
-            model = DecisionTreeRegressor(random_state=42)
-
-
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        mse = mean_squared_error(y_test, y_pred)
-        r2 = r2_score(y_test, y_pred)
-
+    
+        # Train Linear Regression
+        model_reg = LinearRegression()
+        model_reg.fit(X_train, y_train)
+        y_pred_reg = model_reg.predict(X_test)
+    
+        # Train Decision Tree Regression
+        model_tree = DecisionTreeRegressor(random_state=42)
+        model_tree.fit(X_train, y_train)
+        y_pred_tree = model_tree.predict(X_test)
+    
+        # Calculate metrics
+        mse_reg = mean_squared_error(y_test, y_pred_reg)
+        mse_tree = mean_squared_error(y_test, y_pred_tree)
+        r2_reg = r2_score(y_test, y_pred_reg)
+        r2_tree = r2_score(y_test, y_pred_tree)
+    
+        # Evaluation Metrics
         st.write("**Hasil:**")
-        st.write(f"- **Mean Squared Error (MSE):** {mse:.2f}")
-        st.write(f"- **R-squared (R²):** {r2:.2f}")
-
-        # Visualization
-        fig, ax = plt.subplots(figsize=(8, 6))
-        sns.scatterplot(x=y_test, y=y_pred, ax=ax)
-        ax.set_title(f"Hasil Prediksi dengan {model_option}")
+        st.write("- **Mean Squared Error (Linear Regression):** {:.2f}".format(mse_reg))
+        st.write("- **Mean Squared Error (Decision Tree Regression):** {:.2f}".format(mse_tree))
+        st.write("- **R-squared (Linear Regression):** {:.2f}".format(r2_reg))
+        st.write("- **R-squared (Decision Tree Regression):** {:.2f}".format(r2_tree))
+    
+        # Visualization: MSE and R-squared Comparison
+        fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+    
+        # Visualisasi Perbandingan MSE
+        mse_scores = [mse_reg, mse_tree]
+        axes[0].bar(['Linear Regression', 'Decision Tree'], mse_scores, color=['blue', 'orange'])
+        axes[0].set_title('Perbandingan Mean Squared Error (MSE)')
+        axes[0].set_ylabel('MSE')
+        for i, v in enumerate(mse_scores):
+            axes[0].text(i, v + 0.05, f'{v:.2f}', ha='center')
+    
+        # Visualisasi Perbandingan R-squared
+        r2_scores = [r2_reg, r2_tree]
+        axes[1].bar(['Linear Regression', 'Decision Tree'], r2_scores, color=['blue', 'orange'])
+        axes[1].set_title('Perbandingan R-squared')
+        axes[1].set_ylabel('R-squared')
+        for i, v in enumerate(r2_scores):
+            axes[1].text(i, v + 0.02, f'{v:.2f}', ha='center')
+    
         st.pyplot(fig)
+    
+        # Determine optimal model
+        st.write("**Model yang Lebih Optimal:**")
+        if mse_reg < mse_tree:
+            st.write("- Linear Regression lebih optimal berdasarkan MSE.")
+        else:
+            st.write("- Decision Tree Regression lebih optimal berdasarkan MSE.")
+    
+        if r2_reg > r2_tree:
+            st.write("- Linear Regression lebih optimal berdasarkan R-squared.")
+        else:
+            st.write("- Decision Tree Regression lebih optimal berdasarkan R-squared.")
+
 
     elif scenario_option == "Skenario 2: Prediksi Ketersediaan Stok":
         st.subheader("Skenario 2: Prediksi Ketersediaan Stok")
