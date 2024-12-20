@@ -201,43 +201,50 @@ def run_scenario(df):
     elif scenario_option == "Skenario 4: Prediksi Harga Buku dengan KNN":
         st.subheader("Skenario 4: Prediksi Harga Buku dengan KNN")
         st.write("**Penjelasan:**")
-        st.write("Prediksi harga buku berdasarkan rating menggunakan KNN atau SVM.")
+        st.write("Pada skenario ini, kami memprediksi harga buku berdasarkan rating menggunakan algoritma K-Nearest Neighbors (KNN) atau Support Vector Machine (SVM).")
+    
+        # Split data
         X = df[['Rating']]
         y = df['Price']
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        model_option = st.selectbox("Pilih Model:", ["K-Nearest Neighbors (KNN)", "Support Vector Machine (SVM)"])
-
-        if model_option == "K-Nearest Neighbors (KNN)":
-            model = KNeighborsRegressor(n_neighbors=5)
-        else:
-            model = SVR(kernel='linear')
-
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        mse = mean_squared_error(y_test, y_pred)
-        r2 = r2_score(y_test, y_pred)
-
+    
+        # Train and predict with KNN
+        model_knn = KNeighborsRegressor(n_neighbors=5)
+        model_knn.fit(X_train, y_train)
+        y_pred_knn = model_knn.predict(X_test)
+    
+        # Train and predict with SVM
+        model_svm = SVR(kernel='linear')
+        model_svm.fit(X_train, y_train)
+        y_pred_svm = model_svm.predict(X_test)
+    
+        # Calculate metrics
+        mse_knn = mean_squared_error(y_test, y_pred_knn)
+        mse_svm = mean_squared_error(y_test, y_pred_svm)
+        r2_knn = r2_score(y_test, y_pred_knn)
+        r2_svm = r2_score(y_test, y_pred_svm)
+    
         st.write("**Hasil:**")
-        st.write(f"- **Mean Squared Error (MSE):** {mse:.2f}")
-        st.write(f"- **R-squared (R²):** {r2:.2f}")
-
-        # Visualisasi perbandingan MSE dan R2 Score
+        st.write("- **Mean Squared Error (MSE):** MSE lebih kecil menunjukkan prediksi yang lebih akurat.")
+        st.write("- **R-squared (R²):** R² mendekati 1 menunjukkan performa model yang lebih baik.")
+    
+        # Visualize comparison
         fig, axes = plt.subplots(1, 2, figsize=(12, 6))
-        
+    
         # Visualisasi MSE
         mse_values = [mse_knn, mse_svm]
         axes[0].bar(['KNN', 'SVM'], mse_values, color=['blue', 'green'])
         axes[0].set_xlabel('Model')
         axes[0].set_ylabel('Mean Squared Error')
         axes[0].set_title('Perbandingan Mean Squared Error')
-        
+    
         # Visualisasi R2 Score
         r2_values = [r2_knn, r2_svm]
         axes[1].bar(['KNN', 'SVM'], r2_values, color=['blue', 'green'])
         axes[1].set_xlabel('Model')
         axes[1].set_ylabel('R2 Score')
         axes[1].set_title('Perbandingan R2 Score')
-        
+    
         st.pyplot(fig)
 
         
