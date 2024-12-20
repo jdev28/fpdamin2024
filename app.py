@@ -94,7 +94,12 @@ def visualize_data(df):
 
 # Fungsi untuk Menjalankan Skenario
 def run_scenario(df):
-    scenario_option = st.selectbox("Pilih Skenario:", ["Skenario 1: Prediksi Harga Buku", "Skenario 2: Prediksi Ketersediaan Stok"])
+    scenario_option = st.selectbox("Pilih Skenario:", [
+        "Skenario 1: Prediksi Harga Buku",
+        "Skenario 2: Prediksi Ketersediaan Stok",
+        "Skenario 3: Segmentasi Buku Berdasarkan Harga dan Rating",
+        "Skenario 4: Prediksi Harga Buku dengan KNN"
+    ])
 
     if scenario_option == "Skenario 1: Prediksi Harga Buku":
         st.subheader("Skenario 1: Prediksi Harga Buku berdasarkan Rating")
@@ -149,6 +154,49 @@ def run_scenario(df):
         ax.set_title("Confusion Matrix")
         st.pyplot(fig)
 
+    elif scenario_option == "Skenario 3: Segmentasi Buku Berdasarkan Harga dan Rating":
+        st.subheader("Skenario 3: Segmentasi Buku Berdasarkan Harga dan Rating")
+        X_clust = df[['Price', 'Rating']]
+        model_option = st.selectbox("Pilih Model Clustering:", ["K-Means", "DBSCAN"])
+
+        if model_option == "K-Means":
+            model = KMeans(n_clusters=3, random_state=42)
+        else:
+            model = DBSCAN(eps=0.5, min_samples=5)
+
+        labels = model.fit_predict(X_clust)
+        df['Cluster'] = labels
+
+        fig, ax = plt.subplots(figsize=(8, 6))
+        sns.scatterplot(x='Price', y='Rating', hue='Cluster', data=df, palette='viridis', ax=ax)
+        ax.set_title(f"Hasil Clustering dengan {model_option}")
+        st.pyplot(fig)
+
+    elif scenario_option == "Skenario 4: Prediksi Harga Buku dengan KNN":
+        st.subheader("Skenario 4: Prediksi Harga Buku dengan KNN")
+        X = df[['Rating']]
+        y = df['Price']
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        model_option = st.selectbox("Pilih Model:", ["K-Nearest Neighbors (KNN)", "Support Vector Machine (SVM)"])
+
+        if model_option == "K-Nearest Neighbors (KNN)":
+            model = KNeighborsRegressor(n_neighbors=5)
+        else:
+            model = SVR(kernel='linear')
+
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        mse = mean_squared_error(y_test, y_pred)
+        r2 = r2_score(y_test, y_pred)
+
+        st.write(f"**Mean Squared Error (MSE):** {mse:.2f}")
+        st.write(f"**R-squared:** {r2:.2f}")
+
+        fig, ax = plt.subplots(figsize=(8, 6))
+        sns.scatterplot(x=y_test, y=y_pred, ax=ax)
+        ax.set_title(f"Hasil Prediksi dengan {model_option}")
+        st.pyplot(fig)
+        
 # Fungsi Utama
 def main():
     st.title("Analisis Buku dengan Streamlit")
