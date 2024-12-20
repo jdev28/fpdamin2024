@@ -141,38 +141,51 @@ def run_scenario(df):
     elif scenario_option == "Skenario 2: Prediksi Ketersediaan Stok":
         st.subheader("Skenario 2: Prediksi Ketersediaan Stok")
         st.write("**Penjelasan:**")
-        st.write("Prediksi apakah buku tersedia ('In stock') atau tidak ('Out of stock') berdasarkan harga dan rating.")
+        st.write("Skenario ini bertujuan untuk memprediksi apakah suatu buku tersedia ('In stock') atau tidak ('Out of stock') berdasarkan harga dan rating buku.")
         st.write("Model yang digunakan:")
-        st.write("1. **Random Forest Classifier**")
-        st.write("2. **Logistic Regression**")
-
-        # Model Implementation
+        st.write("1. **Random Forest Classifier**: Menggunakan ensemble decision trees untuk meningkatkan akurasi.")
+        st.write("2. **Logistic Regression**: Memprediksi probabilitas ketersediaan stok berdasarkan fitur input.")
+    
+        # Preprocessing for Availability
         df['Availability'] = df['Price'].apply(lambda x: 'In stock' if x > 50 else 'Out of stock')
         X = df[['Price', 'Rating']]
         y = df['Availability'].map({'In stock': 1, 'Out of stock': 0})
+    
+        # Splitting the data
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        model_option = st.selectbox("Pilih Model Klasifikasi:", ["Random Forest Classifier", "Logistic Regression"])
-
-        if model_option == "Random Forest Classifier":
-            model = RandomForestClassifier(random_state=42)
-        else:
-            model = LogisticRegression()
-
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        accuracy = accuracy_score(y_test, y_pred)
-        report = classification_report(y_test, y_pred, output_dict=True)
-
+    
+        # Train Logistic Regression
+        model_lr = LogisticRegression()
+        model_lr.fit(X_train, y_train)
+        y_pred_lr = model_lr.predict(X_test)
+        accuracy_lr = accuracy_score(y_test, y_pred_lr)
+    
+        # Train Random Forest Classifier
+        model_rf = RandomForestClassifier(random_state=42)
+        model_rf.fit(X_train, y_train)
+        y_pred_rf = model_rf.predict(X_test)
+        accuracy_rf = accuracy_score(y_test, y_pred_rf)
+    
+        # Evaluation Metrics
         st.write("**Hasil:**")
-        st.write(f"- **Akurasi:** {accuracy:.2f}")
-        st.write("- **Classification Report:**")
-        st.dataframe(pd.DataFrame(report).transpose())
-
-        # Visualization
-        cm = confusion_matrix(y_test, y_pred)
+        st.write("- **Akurasi Logistic Regression:** {:.2f}".format(accuracy_lr))
+        st.write("- **Akurasi Random Forest Classifier:** {:.2f}".format(accuracy_rf))
+    
+        # Visualization: Accuracy Comparison
         fig, ax = plt.subplots(figsize=(8, 6))
-        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax)
-        ax.set_title("Confusion Matrix")
+        ax.bar(['Logistic Regression', 'Random Forest'], [accuracy_lr, accuracy_rf], color=['blue', 'green'])
+        ax.set_title('Perbandingan Accuracy')
+        ax.set_ylabel('Accuracy')
+        for i, v in enumerate([accuracy_lr, accuracy_rf]):
+            ax.text(i, v + 0.02, f'{v:.2f}', ha='center')
+        st.pyplot(fig)
+    
+        # Confusion Matrix for Random Forest (Example)
+        st.write("**Confusion Matrix (Random Forest Classifier):**")
+        cm_rf = confusion_matrix(y_test, y_pred_rf)
+        fig, ax = plt.subplots(figsize=(8, 6))
+        sns.heatmap(cm_rf, annot=True, fmt='d', cmap='Blues', ax=ax)
+        ax.set_title("Confusion Matrix - Random Forest")
         st.pyplot(fig)
 
     elif scenario_option == "Skenario 3: Segmentasi Buku Berdasarkan Harga dan Rating":
