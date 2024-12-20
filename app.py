@@ -311,8 +311,14 @@ def run_scenario(df):
         
 # Fungsi Utama
 def main():
-    st.title("Analisis Buku dengan Streamlit")
+st.title("Final Project Data Mining")
     st.sidebar.header("Navigasi")
+    st.sidebar.write("**Kelompok:** <Tuliskan Nama Kelompok>")
+    st.sidebar.write("**Anggota:**")
+    st.sidebar.write("1. Nama Anggota 1 (NIM)")
+    st.sidebar.write("2. Nama Anggota 2 (NIM)")
+    st.sidebar.write("3. Nama Anggota 3 (NIM)")
+    st.sidebar.write("4. Nama Anggota 4 (NIM)")
     menu = st.sidebar.radio("Pilih Langkah:", ["Scrape Data", "Visualisasi", "Scenario", "Kesimpulan"])
 
     if menu == "Scrape Data":
