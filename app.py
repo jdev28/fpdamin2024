@@ -324,7 +324,19 @@ def main():
         st.header("Scraping Data")
         df = scrape_books()
         st.dataframe(df.head())
-        st.write("Data berhasil di-scrape!")
+        st.write("Contoh data yang berhasil di scrap dalam bentuk tabel")
+    
+        def convert_df_to_csv(dataframe):
+            return dataframe.to_csv(index=False).encode('utf-8')
+    
+        csv_data = convert_df_to_csv(df)
+    
+        st.download_button(
+            label="Download CSV",
+            data=csv_data,
+            file_name='scraped_books_data.csv',
+            mime='text/csv'
+        )
 
     elif menu == "Visualisasi":
         st.header("Visualisasi Data")
