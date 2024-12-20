@@ -334,8 +334,42 @@ def main():
         run_scenario(df)
 
     elif menu == "Kesimpulan":
-        st.header("Kesimpulan")
-        st.write("Model yang digunakan memberikan wawasan menarik tentang harga dan ketersediaan buku berdasarkan fitur yang tersedia.")
+        st.title("Langkah Kesimpulan")
+        st.write("Berikut adalah kesimpulan dari hasil analisis yang dilakukan pada keempat skenario:")
+    
+        # Scenario 1 Summary
+        st.subheader("Skenario 1: Prediksi Harga Buku")
+        st.write("1. **Linear Regression** menunjukkan performa yang baik untuk hubungan linear antara rating dan harga buku.")
+        st.write("2. **Decision Tree Regression** memberikan fleksibilitas untuk pola non-linear.")
+        st.write("- **Perbandingan:** Linear Regression lebih optimal berdasarkan MSE, sedangkan Decision Tree Regression lebih unggul jika melihat nilai R-squared.")
+    
+        # Scenario 2 Summary
+        st.subheader("Skenario 2: Prediksi Ketersediaan Stok")
+        st.write("1. **Logistic Regression** memiliki akurasi yang lebih tinggi pada data ini untuk prediksi ketersediaan stok buku.")
+        st.write("2. **Random Forest Classifier** memberikan hasil yang konsisten dengan akurasi mendekati Logistic Regression.")
+        st.write("- **Perbandingan:** Logistic Regression lebih sederhana dan cepat untuk dataset ini, sementara Random Forest lebih robust untuk data yang lebih kompleks.")
+    
+        # Scenario 3 Summary
+        st.subheader("Skenario 3: Segmentasi Buku")
+        st.write("1. **K-Means Clustering** efektif untuk data dengan distribusi teratur.")
+        st.write("2. **DBSCAN** cocok untuk data dengan pola non-linear atau outliers.")
+        st.write("- **Perbandingan:** K-Means lebih stabil pada dataset ini karena distribusi data lebih seimbang.")
+    
+        # Scenario 4 Summary
+        st.subheader("Skenario 4: Prediksi Harga Buku dengan KNN")
+        st.write("1. **K-Nearest Neighbors (KNN)** memberikan hasil yang baik untuk pola lokal dengan data yang cukup.")
+        st.write("2. **Support Vector Machine (SVM)** unggul pada hubungan yang lebih kompleks dengan margin yang lebih optimal.")
+        st.write("- **Perbandingan:** KNN lebih sederhana untuk dataset ini, sedangkan SVM lebih unggul untuk data dengan pola kompleks.")
+    
+        # Visual Conclusion
+        st.subheader("Kesimpulan Akhir")
+        st.write("""
+            Dari keempat skenario di atas, setiap model memiliki kelebihan berdasarkan karakteristik data:
+            - Model Linear Regression dan Logistic Regression bekerja baik untuk dataset sederhana.
+            - Random Forest dan Decision Tree cocok untuk pola data yang kompleks.
+            - K-Means unggul pada clustering data teratur, sedangkan DBSCAN menangani pola non-linear dengan baik.
+            - KNN bekerja pada skenario sederhana, sementara SVM unggul untuk hubungan kompleks.
+        """)
 
 if __name__ == "__main__":
     main()
