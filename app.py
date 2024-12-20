@@ -105,6 +105,13 @@ def run_scenario(df):
 
     if scenario_option == "Skenario 1: Prediksi Harga Buku":
         st.subheader("Skenario 1: Prediksi Harga Buku berdasarkan Rating")
+        st.write("**Penjelasan:**")
+        st.write("Skenario ini bertujuan untuk memprediksi harga buku berdasarkan rating yang diberikan.")
+        st.write("Model yang digunakan:")
+        st.write("1. **Linear Regression**: Untuk hubungan linear antara rating dan harga.")
+        st.write("2. **Decision Tree Regression**: Untuk pola non-linear.")
+
+        # Model Implementation
         X = df[['Rating']]
         y = df['Price']
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -113,16 +120,18 @@ def run_scenario(df):
         if model_option == "Linear Regression":
             model = LinearRegression()
         else:
-            model = DecisionTreeRegressor(random_state=42)
+            model = Decision TreeRegressor(random_state=42)
 
         model.fit(X_train, y_train)
         y_pred = model.predict(X_test)
         mse = mean_squared_error(y_test, y_pred)
         r2 = r2_score(y_test, y_pred)
 
-        st.write(f"**Mean Squared Error (MSE):** {mse:.2f}")
-        st.write(f"**R-squared:** {r2:.2f}")
+        st.write("**Hasil:**")
+        st.write(f"- **Mean Squared Error (MSE):** {mse:.2f}")
+        st.write(f"- **R-squared (R²):** {r2:.2f}")
 
+        # Visualization
         fig, ax = plt.subplots(figsize=(8, 6))
         sns.scatterplot(x=y_test, y=y_pred, ax=ax)
         ax.set_title(f"Hasil Prediksi dengan {model_option}")
@@ -130,6 +139,13 @@ def run_scenario(df):
 
     elif scenario_option == "Skenario 2: Prediksi Ketersediaan Stok":
         st.subheader("Skenario 2: Prediksi Ketersediaan Stok")
+        st.write("**Penjelasan:**")
+        st.write("Prediksi apakah buku tersedia ('In stock') atau tidak ('Out of stock') berdasarkan harga dan rating.")
+        st.write("Model yang digunakan:")
+        st.write("1. **Random Forest Classifier**")
+        st.write("2. **Logistic Regression**")
+
+        # Model Implementation
         df['Availability'] = df['Price'].apply(lambda x: 'In stock' if x > 50 else 'Out of stock')
         X = df[['Price', 'Rating']]
         y = df['Availability'].map({'In stock': 1, 'Out of stock': 0})
@@ -146,10 +162,12 @@ def run_scenario(df):
         accuracy = accuracy_score(y_test, y_pred)
         report = classification_report(y_test, y_pred, output_dict=True)
 
-        st.write(f"**Akurasi:** {accuracy:.2f}")
-        st.write("**Classification Report:**")
+        st.write("**Hasil:**")
+        st.write(f"- **Akurasi:** {accuracy:.2f}")
+        st.write("- **Classification Report:**")
         st.dataframe(pd.DataFrame(report).transpose())
 
+        # Visualization
         cm = confusion_matrix(y_test, y_pred)
         fig, ax = plt.subplots(figsize=(8, 6))
         sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax)
@@ -158,6 +176,8 @@ def run_scenario(df):
 
     elif scenario_option == "Skenario 3: Segmentasi Buku Berdasarkan Harga dan Rating":
         st.subheader("Skenario 3: Segmentasi Buku Berdasarkan Harga dan Rating")
+        st.write("**Penjelasan:**")
+        st.write("Segmentasi buku berdasarkan harga dan rating menggunakan K-Means atau DBSCAN.")
         X_clust = df[['Price', 'Rating']]
         model_option = st.selectbox("Pilih Model Clustering:", ["K-Means", "DBSCAN"])
 
@@ -169,6 +189,9 @@ def run_scenario(df):
         labels = model.fit_predict(X_clust)
         df['Cluster'] = labels
 
+        st.write("**Hasil:**")
+        st.write("- Scatter plot menunjukkan distribusi cluster berdasarkan harga dan rating.")
+
         fig, ax = plt.subplots(figsize=(8, 6))
         sns.scatterplot(x='Price', y='Rating', hue='Cluster', data=df, palette='viridis', ax=ax)
         ax.set_title(f"Hasil Clustering dengan {model_option}")
@@ -176,6 +199,8 @@ def run_scenario(df):
 
     elif scenario_option == "Skenario 4: Prediksi Harga Buku dengan KNN":
         st.subheader("Skenario 4: Prediksi Harga Buku dengan KNN")
+        st.write("**Penjelasan:**")
+        st.write("Prediksi harga buku berdasarkan rating menggunakan KNN atau SVM.")
         X = df[['Rating']]
         y = df['Price']
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -191,9 +216,11 @@ def run_scenario(df):
         mse = mean_squared_error(y_test, y_pred)
         r2 = r2_score(y_test, y_pred)
 
-        st.write(f"**Mean Squared Error (MSE):** {mse:.2f}")
-        st.write(f"**R-squared:** {r2:.2f}")
+        st.write("**Hasil:**")
+        st.write(f"- **Mean Squared Error (MSE):** {mse:.2f}")
+        st.write(f"- **R-squared (R²):** {r2:.2f}")
 
+        # Visualization
         fig, ax = plt.subplots(figsize=(8, 6))
         sns.scatterplot(x=y_test, y=y_pred, ax=ax)
         ax.set_title(f"Hasil Prediksi dengan {model_option}")
