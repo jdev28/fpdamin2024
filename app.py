@@ -120,7 +120,8 @@ def run_scenario(df):
         if model_option == "Linear Regression":
             model = LinearRegression()
         else:
-            model = Decision TreeRegressor(random_state=42)
+            model = DecisionTreeRegressor(random_state=42)
+
 
         model.fit(X_train, y_train)
         y_pred = model.predict(X_test)
