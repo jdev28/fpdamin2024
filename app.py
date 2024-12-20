@@ -221,11 +221,25 @@ def run_scenario(df):
         st.write(f"- **Mean Squared Error (MSE):** {mse:.2f}")
         st.write(f"- **R-squared (R²):** {r2:.2f}")
 
-        # Visualization
-        fig, ax = plt.subplots(figsize=(8, 6))
-        sns.scatterplot(x=y_test, y=y_pred, ax=ax)
-        ax.set_title(f"Hasil Prediksi dengan {model_option}")
+        # Visualisasi perbandingan MSE dan R2 Score
+        fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+        
+        # Visualisasi MSE
+        mse_values = [mse_knn, mse_svm]
+        axes[0].bar(['KNN', 'SVM'], mse_values, color=['blue', 'green'])
+        axes[0].set_xlabel('Model')
+        axes[0].set_ylabel('Mean Squared Error')
+        axes[0].set_title('Perbandingan Mean Squared Error')
+        
+        # Visualisasi R2 Score
+        r2_values = [r2_knn, r2_svm]
+        axes[1].bar(['KNN', 'SVM'], r2_values, color=['blue', 'green'])
+        axes[1].set_xlabel('Model')
+        axes[1].set_ylabel('R2 Score')
+        axes[1].set_title('Perbandingan R2 Score')
+        
         st.pyplot(fig)
+
         
 # Fungsi Utama
 def main():
