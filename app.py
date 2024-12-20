@@ -1,26 +1,21 @@
+# -*- coding: utf-8 -*-
 import streamlit as st
 import pandas as pd
-import seaborn as sns
+import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
 from sklearn.cluster import KMeans
-from sklearn.metrics import mean_squared_error, r2_score, accuracy_score, classification_report, confusion_matrix
+from sklearn.metrics import mean_squared_error, r2_score
 
-# Fungsi Scraping Data
-@st.cache
+# Fungsi untuk scraping data
 def scrape_books():
-    import requests
-    from bs4 import BeautifulSoup
-
     base_url = "https://books.toscrape.com/catalogue/"
     start_url = "https://books.toscrape.com/catalogue/page-1.html"
 
     books_data = []
-    max_books = 100
+    max_books = 400
 
     while start_url and len(books_data) < max_books:
         response = requests.get(start_url)
@@ -49,12 +44,15 @@ def scrape_books():
         else:
             start_url = None
 
-    return pd.DataFrame(books_data)
+    books_df = pd.DataFrame(books_data)
+    return books_df
 
-# Fungsi Preprocessing Data
+# Fungsi untuk membersihkan data
 def clean_and_preprocess_data(df):
-    df.drop(columns=['Availability'], inplace=True, errors='ignore')
+    if 'Availability' in df.columns:
+        df.drop(columns=['Availability'], inplace=True)
     df.drop_duplicates(inplace=True)
+
     rating_mapping = {
         'One': 1,
         'Two': 2,
@@ -62,121 +60,120 @@ def clean_and_preprocess_data(df):
         'Four': 4,
         'Five': 5
     }
-    df['Rating'] = df['Rating'].map(rating_mapping)
+    if 'Rating' in df.columns:
+        df['Rating'] = df['Rating'].map(rating_mapping)
+
     df.dropna(inplace=True)
     df['Price'] = pd.to_numeric(df['Price'], errors='coerce')
     df.dropna(inplace=True)
+
     return df
 
-# Fungsi Visualisasi
+# Fungsi untuk visualisasi data
 def visualize_data(df):
     st.subheader("Visualisasi Data")
-    st.write("Berikut adalah beberapa visualisasi data untuk analisis awal.")
+    st.write("Berikut adalah distribusi harga dan rating buku.")
 
-    # Visualisasi Harga Buku
-    fig, ax = plt.subplots(1, 2, figsize=(12, 6))
-    sns.histplot(df['Price'], bins=30, kde=True, ax=ax[0])
-    ax[0].set_title('Distribusi Harga Buku')
-    sns.boxplot(x=df['Price'], ax=ax[1])
-    ax[1].set_title('Variasi Harga Buku')
+    fig, axs = plt.subplots(1, 2, figsize=(12, 6))
+
+    sns.histplot(df['Price'], bins=30, kde=True, ax=axs[0])
+    axs[0].set_title('Distribusi Harga Buku')
+    axs[0].set_xlabel('Harga (£)')
+    axs[0].set_ylabel('Frekuensi')
+
+    sns.boxplot(x=df['Price'], ax=axs[1])
+    axs[1].set_title('Variasi Harga Buku')
+    axs[1].set_xlabel('Harga (£)')
+
     st.pyplot(fig)
 
-    # Distribusi Rating
-    fig, ax = plt.subplots(figsize=(8, 6))
-    sns.countplot(x='Rating', data=df, palette='viridis', ax=ax)
+    fig, ax = plt.subplots()
+    sns.countplot(x='Rating', data=df, ax=ax)
     ax.set_title('Distribusi Rating Buku')
+    ax.set_xlabel('Rating')
+    ax.set_ylabel('Jumlah Buku')
     st.pyplot(fig)
 
-    # Korelasi Harga dan Rating
-    fig, ax = plt.subplots(figsize=(8, 6))
-    sns.scatterplot(x='Rating', y='Price', data=df, ax=ax)
-    ax.set_title('Korelasi Harga dan Rating')
+# Fungsi clustering
+def perform_clustering(df):
+    st.subheader("Clustering Buku")
+    st.write("Mengelompokkan buku berdasarkan harga dan rating menggunakan algoritma K-Means.")
+    kmeans = KMeans(n_clusters=3, random_state=42)
+    df['Cluster'] = kmeans.fit_predict(df[['Price', 'Rating']])
+
+    fig, ax = plt.subplots()
+    sns.scatterplot(x='Price', y='Rating', hue='Cluster', palette='viridis', data=df, ax=ax)
+    ax.set_title('Hasil Clustering K-Means')
     st.pyplot(fig)
 
-# Fungsi untuk Menjalankan Skenario
-def run_scenario(df):
-    scenario_option = st.selectbox("Pilih Skenario:", ["Skenario 1: Prediksi Harga Buku", "Skenario 2: Prediksi Ketersediaan Stok"])
+# Fungsi regresi
+def perform_regression(df):
+    st.subheader("Prediksi Harga dengan Regresi")
+    st.write("Menggunakan regresi linear untuk memprediksi harga buku berdasarkan rating.")
 
-    if scenario_option == "Skenario 1: Prediksi Harga Buku":
-        st.subheader("Skenario 1: Prediksi Harga Buku berdasarkan Rating")
-        X = df[['Rating']]
-        y = df['Price']
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        model_option = st.selectbox("Pilih Model:", ["Linear Regression", "Decision Tree Regression"])
+    X = df[['Rating']]
+    y = df['Price']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-        if model_option == "Linear Regression":
-            model = LinearRegression()
-        else:
-            model = DecisionTreeRegressor(random_state=42)
+    model = LinearRegression()
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
 
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        mse = mean_squared_error(y_test, y_pred)
-        r2 = r2_score(y_test, y_pred)
+    mse = mean_squared_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
 
-        st.write(f"**Mean Squared Error (MSE):** {mse:.2f}")
-        st.write(f"**R-squared:** {r2:.2f}")
+    st.write(f"Mean Squared Error: {mse:.2f}")
+    st.write(f"R-squared: {r2:.2f}")
 
-        fig, ax = plt.subplots(figsize=(8, 6))
-        sns.scatterplot(x=y_test, y=y_pred, ax=ax)
-        ax.set_title(f"Hasil Prediksi dengan {model_option}")
-        st.pyplot(fig)
+    fig, ax = plt.subplots()
+    sns.scatterplot(x=y_test, y=y_pred, ax=ax)
+    ax.set_title('Prediksi vs Harga Aktual')
+    ax.set_xlabel('Harga Aktual')
+    ax.set_ylabel('Harga Prediksi')
+    st.pyplot(fig)
 
-    elif scenario_option == "Skenario 2: Prediksi Ketersediaan Stok":
-        st.subheader("Skenario 2: Prediksi Ketersediaan Stok")
-        df['Availability'] = df['Price'].apply(lambda x: 'In stock' if x > 50 else 'Out of stock')
-        X = df[['Price', 'Rating']]
-        y = df['Availability'].map({'In stock': 1, 'Out of stock': 0})
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        model_option = st.selectbox("Pilih Model Klasifikasi:", ["Random Forest Classifier", "Logistic Regression"])
-
-        if model_option == "Random Forest Classifier":
-            model = RandomForestClassifier(random_state=42)
-        else:
-            model = LogisticRegression()
-
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        accuracy = accuracy_score(y_test, y_pred)
-        report = classification_report(y_test, y_pred, output_dict=True)
-
-        st.write(f"**Akurasi:** {accuracy:.2f}")
-        st.write("**Classification Report:**")
-        st.dataframe(pd.DataFrame(report).transpose())
-
-        cm = confusion_matrix(y_test, y_pred)
-        fig, ax = plt.subplots(figsize=(8, 6))
-        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax)
-        ax.set_title("Confusion Matrix")
-        st.pyplot(fig)
-
-# Fungsi Utama
+# Main Program
 def main():
-    st.title("Final Project - Data Mining Kelompok 8")
-    st.sidebar.header("Navigasi")
-    menu = st.sidebar.radio("Pilih Langkah:", ["Scrape Data", "Visualisasi", "Scenario", "Kesimpulan"])
+    st.set_page_config(page_title="Final Project Data Mining", page_icon="📚", layout="wide")
 
-    if menu == "Scrape Data":
+    st.title("Final Project Data Mining")
+    st.subheader("Kelompok 8")
+
+    st.sidebar.header("Navigasi")
+    options = st.sidebar.radio(
+        "Pilih Langkah:",
+        ["Scrape Data", "Visualisasi", "Clustering", "Regresi", "Kesimpulan"]
+    )
+
+    if options == "Scrape Data":
         st.header("Scraping Data")
+        st.write("Menyediakan data buku dari website Books to Scrape.")
         df = scrape_books()
         st.dataframe(df.head())
-        st.write("Contoh Data yang berhasil di-scrape")
+        st.success("Data berhasil di-scrape!")
 
-    elif menu == "Visualisasi":
+    elif options == "Visualisasi":
         st.header("Visualisasi Data")
         df = scrape_books()
         df = clean_and_preprocess_data(df)
         visualize_data(df)
 
-    elif menu == "Scenario":
-        st.header("Scenario Analisis")
+    elif options == "Clustering":
+        st.header("Clustering Data")
         df = scrape_books()
         df = clean_and_preprocess_data(df)
-        run_scenario(df)
+        perform_clustering(df)
 
-    elif menu == "Kesimpulan":
+    elif options == "Regresi":
+        st.header("Prediksi Harga dengan Regresi")
+        df = scrape_books()
+        df = clean_and_preprocess_data(df)
+        perform_regression(df)
+
+    elif options == "Kesimpulan":
         st.header("Kesimpulan")
-        st.write("Model yang digunakan memberikan wawasan menarik tentang harga dan ketersediaan buku berdasarkan fitur yang tersedia.")
+        st.write("Aplikasi ini menyediakan analisis data buku, termasuk visualisasi, clustering, dan prediksi harga.")
+        st.success("Terima kasih telah menggunakan aplikasi ini!")
 
 if __name__ == "__main__":
     main()
