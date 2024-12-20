@@ -11,7 +11,6 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import mean_squared_error, r2_score, accuracy_score, classification_report, confusion_matrix
 
 # Fungsi Scraping Data
-@st.cache
 def scrape_books():
     import requests
     from bs4 import BeautifulSoup
