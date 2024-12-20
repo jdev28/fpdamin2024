@@ -313,12 +313,11 @@ def run_scenario(df):
 def main():
     st.title("Final Project Data Mining")
     st.sidebar.header("Navigasi")
-    st.sidebar.write("**Kelompok:** <Tuliskan Nama Kelompok>")
+    st.sidebar.write("**Kelompok: 8")
     st.sidebar.write("**Anggota:**")
-    st.sidebar.write("1. Nama Anggota 1 (NIM)")
-    st.sidebar.write("2. Nama Anggota 2 (NIM)")
-    st.sidebar.write("3. Nama Anggota 3 (NIM)")
-    st.sidebar.write("4. Nama Anggota 4 (NIM)")
+    st.sidebar.write("1. Rahmat Adzani (21082010173)")
+    st.sidebar.write("2. Nur Muhammad Zam Zami Zen (21082010189)")
+    st.sidebar.write("3. Jonathan Devrinno (21082010204)")
     menu = st.sidebar.radio("Pilih Langkah:", ["Scrape Data", "Visualisasi", "Scenario", "Kesimpulan"])
 
     if menu == "Scrape Data":
